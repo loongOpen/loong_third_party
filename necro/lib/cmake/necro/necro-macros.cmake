@@ -1,0 +1,134 @@
+# Distributed under the OSI-approved BSD 3-Clause License.  See accompanying
+# file Copyright.txt or https://cmake.org/licensing for details.
+
+#[=======================================================================[.rst:
+NecroTargetBootstrap
+----------------------
+
+Minimal required CMake Version is 3.0, several features are only fully usable
+with 3.1
+#]=======================================================================]
+
+set(_NecroMacros_SELF "${CMAKE_CURRENT_LIST_FILE}")
+get_filename_component(_NecroMacros_SELF_DIR "${_NecroMacros_SELF}" PATH)
+
+if(CMAKE_VERSION VERSION_LESS 3.5)
+  include(CMakeParseArguments)
+endif()
+
+function(necro_target_bootstrap target)
+
+  set(_fileprefix "${CMAKE_CURRENT_BINARY_DIR}/generated/necro_bootstrap")
+  set(_fileinclude "#include \"necro_bootstrap_template.h\"\n")
+
+  set(_extradefines "#define _NECRO_BOOTSTRAP_WRAP_MALLOC\n#define _NECRO_BOOTSTRAP_GLIBC_CONSTRUCTORS\n")
+
+  file(WRITE "${_fileprefix}_main.c.tmp"
+      "#ifdef main\n#undef main\n#endif\n${_extradefines}#define _NECRO_BOOTSTRAP_DEFINE_MAINWRAPPER __real_main\n#define _NECRO_BOOTSTRAP_WEAKREF_MAINWRAPPER main\n${_fileinclude}"
+    )
+  file(WRITE "${_fileprefix}_shl.c.tmp"
+      "${_extradefines}#define _NECRO_BOOTSTRAP_DSO\n${_fileinclude}"
+    )
+  file(WRITE "${_fileprefix}.c.tmp"
+      "${_extradefines}${_fileinclude}"
+    )
+
+  execute_process(
+  	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${_NecroMacros_SELF_DIR}/bootstrap-template.h" "${_fileprefix}_template.h"
+  	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${_fileprefix}_main.c.tmp" "${_fileprefix}_main.c"
+  	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${_fileprefix}_shl.c.tmp" "${_fileprefix}_shl.c"
+  	COMMAND "${CMAKE_COMMAND}" -E copy_if_different "${_fileprefix}.c.tmp" "${_fileprefix}.c"
+  )
+
+  get_target_property(ttype ${target} TYPE)
+
+  cmake_parse_arguments(XBS "NO_FALLBACK;MODECHK" "MAIN;MAIN_WRAP" "SKINS" ${ARGN})
+  set(_errors)
+
+  if(XBS_MAIN
+     AND NOT XBS_MAIN STREQUAL "NONE"
+     AND NOT XBS_MAIN STREQUAL "SOURCE"
+     AND NOT XBS_MAIN STREQUAL "PRECOMPILED")
+    set(_errors ${_errors}
+        "MAIN only support the values NONE, SOURCE and PRECOMPILED")
+  endif()
+  if(XBS_MAIN_WRAP
+     AND NOT XBS_MAIN_WRAP STREQUAL "NONE"
+     AND NOT XBS_MAIN_WRAP STREQUAL "MACRO"
+     AND NOT XBS_MAIN_WRAP STREQUAL "LINKER")
+    set(_errors ${_errors}
+        "XBS_MAIN_WRAP only support the values NONE, MACRO and LINKER")
+  endif()
+
+  # the default is not working on CMake 3.0, so fallback to the precompiled
+  # objects unless this was disabled
+  if(CMAKE_VERSION VERSION_LESS 3.1)
+    if(NOT XBS_MAIN OR XBS_MAIN STREQUAL "NONE" OR XBS_MAIN STREQUAL "SOURCE")
+      if(XBS_NO_FALLBACK)
+        set(_errors ${_errors}
+            "MAIN NONE and MAIN SOURCE need atleast CMake 3.1")
+      else()
+        if(ttype STREQUAL EXECUTABLE)
+          message(
+            WARNING
+              "necro_target_bootstrap: setting MAIN PRECOMPILED for ${target} (CMake Version less than 3.1)"
+            )
+        endif()
+        set(XBS_MAIN "PRECOMPILED")
+        if(NOT XBS_MAIN_WRAP
+           OR XBS_MAIN_WRAP STREQUAL "NONE"
+           OR XBS_MAIN_WRAP STREQUAL "MACRO")
+          set(XBS_MAIN_WRAP "LINKER")
+          if(ttype STREQUAL EXECUTABLE)
+            message(
+              WARNING
+                "necro_target_bootstrap: setting XBS_MAIN_WRAP LINKER for ${target} (CMake Version less than 3.1)"
+              )
+          endif()
+        endif()
+      endif()
+    endif()
+  endif()
+
+  if(_errors)
+    message(SEND_ERROR "necro_target_bootstrap: ${_errors}")
+    return()
+  endif()
+
+  if(XBS_MAIN STREQUAL "SOURCE")
+    target_sources(${target} PRIVATE
+      "$<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,SHARED_LIBRARY>:${_fileprefix}_shl.c>"
+      "$<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,EXECUTABLE>:${_fileprefix}_main.c>")
+
+  elseif(XBS_MAIN STREQUAL "PRECOMPILED")
+    target_link_libraries(${target} PRIVATE Necro::legacy_bootstrap)
+
+  else()
+    target_sources(${target} PRIVATE
+      "$<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,SHARED_LIBRARY>:${_fileprefix}_shl.c>"
+      "$<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,EXECUTABLE>:${_fileprefix}.c>")
+
+  endif()
+
+  if(XBS_MODECHK)
+  	target_link_libraries(${target} PRIVATE Necro::modechk)
+  endif()
+
+  if(XBS_MAIN_WRAP STREQUAL "MACRO")
+    target_compile_definitions(${target} PRIVATE
+      $<$<STREQUAL:$<TARGET_PROPERTY:TYPE>,EXECUTABLE>:main=__real_main>)
+
+  elseif(XBS_MAIN_WRAP STREQUAL "LINKER")
+    target_link_libraries(${target} PRIVATE Necro::legacy_bootstrap_wrap)
+  endif()
+
+  set(_skins)
+  foreach(_skin ${XBS_SKINS})
+    string(TOLOWER ${_skin} _lbname)
+    set(_skins ${_skins} "Necro::${_lbname}")
+  endforeach()
+
+  if(_skins)
+    target_link_libraries(${target} PRIVATE ${_skins})
+  endif()
+endfunction()

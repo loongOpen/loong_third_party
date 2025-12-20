@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(loong_third_party VERSION 3.6.0 LANGUAGES C CXX)
+project(loong_third_party VERSION 4.0.0 LANGUAGES C CXX)
 option(ARM64 "aarch64" OFF)
 if(ARM64)
     set(march aarch64)

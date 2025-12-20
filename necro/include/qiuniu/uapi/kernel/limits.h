@@ -1,0 +1,7 @@
+
+#ifndef _QIUNIU_UAPI_KERNEL_LIMITS_H
+#define _QIUNIU_UAPI_KERNEL_LIMITS_H
+
+#define XNOBJECT_NAME_LEN 32
+
+#endif 
