@@ -27,7 +27,36 @@ typedef struct slot_info {
   std::string slot_name;
 }slot_info;
 typedef std::vector<slot_info> slots_info;
-struct slave_config_info;
+
+struct dc_param
+{
+  std::uint16_t assign_activate{};
+
+  std::int64_t cycle_time0{};
+  std::int64_t shift_time{0};
+  std::int64_t cycle_time1{};
+};
+struct slave_config_info
+{
+  ecat::slave_id id;
+  ecat::slave_addr addr;
+
+  std::optional<ecat::slave_config> sc;
+  std::optional<dc_param> dc_param_;
+  bool is_reference_clock{};
+  std::vector<std::vector<ecat::pdo_cfg>> rx_pdos;
+  std::vector<std::vector<ecat::pdo_cfg>> tx_pdos;
+  std::vector<slot_info> slots_info;
+  std::map<ecat::pdo_entry_idx, ecat::offset> entry_offsets;
+  std::map<ecat::pdo_entry_idx, std::pair<void *, std::uint8_t>>
+      entry_addresses;
+
+  std::optional<int> profile_no;
+
+  uint16_t slots_count = 0;
+  uint32_t slot_index_increment = 0x800;
+  uint32_t slot_pdo_increment = 16;
+};
 
 enum PdoEntryType{
   PdoTypeRx = 0,
@@ -276,6 +305,10 @@ uint16_t sdo_upload(std::uint16_t pos, sdo_idx t_sdo_idx, bool complete_access);
   std::uint16_t axis_name(std::uint16_t slave_pos, std::string& namep);
 
   wc_state_type get_wcstate();
+
+  std::uint32_t get_working_counter();
+
+  domain_state get_domain_state();
 
   void check_eni(bool check = true);
 
