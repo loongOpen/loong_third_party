@@ -297,6 +297,10 @@ static int _connect(int sockfd,
 
         /* Wait to be available in writing */
         FD_ZERO(&wset);
+        if (sockfd >= FD_SETSIZE) {
+            errno = EINVAL;
+            return -1;
+        }
         FD_SET(sockfd, &wset);
         rc = select(sockfd + 1, NULL, &wset, NULL, &tv);
         if (rc < 0) {
@@ -347,6 +351,20 @@ static int _modbus_tcp_connect(modbus_t *ctx)
 
     ctx->s = socket(PF_INET, flags, 0);
     if (ctx->s < 0) {
+        return -1;
+    }
+
+    if (ctx->s >= FD_SETSIZE) {
+        if (ctx->debug) {
+            fprintf(
+                stderr,
+                "ERROR Socket descriptor %d exceeds FD_SETSIZE (%d)\n",
+                ctx->s,
+                FD_SETSIZE);
+        }
+        close(ctx->s);
+        ctx->s = -1;
+        errno = EINVAL;
         return -1;
     }
 
@@ -440,6 +458,18 @@ static int _modbus_tcp_pi_connect(modbus_t *ctx)
         if (s < 0)
             continue;
 
+        if (s >= FD_SETSIZE) {
+            if (ctx->debug) {
+                fprintf(
+                    stderr,
+                    "ERROR Socket descriptor %d exceeds FD_SETSIZE (%d)\n",
+                    s,
+                    FD_SETSIZE);
+            }
+            close(s);
+            continue;
+        }
+
         if (ai_ptr->ai_family == AF_INET)
             _modbus_tcp_set_ipv4_options(s);
 
@@ -501,6 +531,10 @@ static int _modbus_tcp_flush(modbus_t *ctx)
         tv.tv_sec = 0;
         tv.tv_usec = 0;
         FD_ZERO(&rset);
+        if (ctx->s < 0 || ctx->s >= FD_SETSIZE) {
+            errno = EINVAL;
+            return -1;
+        }
         FD_SET(ctx->s, &rset);
         rc = select(ctx->s + 1, &rset, NULL, NULL, &tv);
         if (rc == -1) {
@@ -525,7 +559,8 @@ static int _modbus_tcp_flush(modbus_t *ctx)
         }
     } while (rc == MODBUS_TCP_MAX_ADU_LENGTH);
 
-    return rc_sum;
+    /* Cast is safe: uint16_t always fits in int, and overflow is checked above */
+    return (int) rc_sum;
 }
 
 /* Listens for any request from one or many modbus masters in TCP */
@@ -742,6 +777,20 @@ int modbus_tcp_accept(modbus_t *ctx, int *s)
         return -1;
     }
 
+    if (ctx->s >= FD_SETSIZE) {
+        if (ctx->debug) {
+            fprintf(
+                stderr,
+                "ERROR Socket descriptor %d exceeds FD_SETSIZE (%d)\n",
+                ctx->s,
+                FD_SETSIZE);
+        }
+        close(ctx->s);
+        ctx->s = -1;
+        errno = EINVAL;
+        return -1;
+    }
+
     if (ctx->debug) {
         char buf[INET_ADDRSTRLEN];
         if (inet_ntop(AF_INET, &(addr.sin_addr), buf, INET_ADDRSTRLEN) == NULL) {
@@ -776,6 +825,20 @@ int modbus_tcp_pi_accept(modbus_t *ctx, int *s)
         return -1;
     }
 
+    if (ctx->s >= FD_SETSIZE) {
+        if (ctx->debug) {
+            fprintf(
+                stderr,
+                "ERROR Socket descriptor %d exceeds FD_SETSIZE (%d)\n",
+                ctx->s,
+                FD_SETSIZE);
+        }
+        close(ctx->s);
+        ctx->s = -1;
+        errno = EINVAL;
+        return -1;
+    }
+
     if (ctx->debug) {
         char buf[INET6_ADDRSTRLEN];
         if (inet_ntop(AF_INET6, &(addr.sin6_addr), buf, INET6_ADDRSTRLEN) == NULL) {
@@ -799,6 +862,10 @@ _modbus_tcp_select(modbus_t *ctx, fd_set *rset, struct timeval *tv, int length_t
             }
             /* Necessary after an error */
             FD_ZERO(rset);
+            if (ctx->s < 0 || ctx->s >= FD_SETSIZE) {
+                errno = EINVAL;
+                return -1;
+            }
             FD_SET(ctx->s, rset);
         } else {
             return -1;
@@ -923,7 +990,7 @@ modbus_t *modbus_new_tcp(const char *ip, int port)
 
     if (ip != NULL) {
         dest_size = sizeof(char) * 16;
-        ret_size = strlcpy(ctx_tcp->ip, ip, dest_size);
+        ret_size = strlcpy_(ctx_tcp->ip, ip, dest_size);
         if (ret_size == 0) {
             fprintf(stderr, "The IP string is empty\n");
             modbus_free(ctx);

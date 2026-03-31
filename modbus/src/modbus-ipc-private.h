@@ -8,9 +8,9 @@
 #define _MODBUS_IPC_PRESET_RSP_LENGTH 2
 #define _MODBUS_IPC_CHECKSUM_LENGTH   2
 
-typedef struct _modbus_ipc{
-    char* deviceR, * deviceS;
+typedef struct _modbus_ipc {
+    char *deviceR, *deviceS;
     int confirmation_to_ignore;
-}modbus_ipc_t;
+} modbus_ipc_t;
 
 #endif

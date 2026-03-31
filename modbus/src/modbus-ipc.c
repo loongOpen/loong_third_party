@@ -9,7 +9,7 @@
 #include "modbus-ipc-private.h"
 #include "modbus-ipc.h"
 
-static uint8_t const table_crc_hi[] = {
+static const uint8_t table_crc_hi[] = {
     0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1,
     0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1, 0x81, 0x40,
     0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x00, 0xC1,
@@ -30,7 +30,7 @@ static uint8_t const table_crc_hi[] = {
     0x80, 0x41, 0x00, 0xC1, 0x81, 0x40, 0x01, 0xC0, 0x80, 0x41, 0x01, 0xC0, 0x80, 0x41,
     0x00, 0xC1, 0x81, 0x40};
 
-static uint8_t const table_crc_lo[] = {
+static const uint8_t table_crc_lo[] = {
     0x00, 0xC0, 0xC1, 0x01, 0xC3, 0x03, 0x02, 0xC2, 0xC6, 0x06, 0x07, 0xC7, 0x05, 0xC5,
     0xC4, 0x04, 0xCC, 0x0C, 0x0D, 0xCD, 0x0F, 0xCF, 0xCE, 0x0E, 0x0A, 0xCA, 0xCB, 0x0B,
     0xC9, 0x09, 0x08, 0xC8, 0xD8, 0x18, 0x19, 0xD9, 0x1B, 0xDB, 0xDA, 0x1A, 0x1E, 0xDE,
@@ -51,18 +51,21 @@ static uint8_t const table_crc_lo[] = {
     0x4C, 0x8C, 0x44, 0x84, 0x85, 0x45, 0x87, 0x47, 0x46, 0x86, 0x82, 0x42, 0x43, 0x83,
     0x41, 0x81, 0x80, 0x40};
 
-static int _modbus_set_slave(modbus_t* ctx, int slave){
+static int _modbus_set_slave(modbus_t *ctx, int slave)
+{
     int max_slave = (ctx->quirks & MODBUS_QUIRK_MAX_SLAVE) ? 255 : 247;
-    if(slave >= 0 && slave <= max_slave){
+    if (slave >= 0 && slave <= max_slave) {
         ctx->slave = slave;
-    }else{
+    } else {
         errno = EINVAL;
         return -1;
     }
     return 0;
 }
 
-static int _modbus_ipc_build_request_basis(modbus_t* ctx, int function, int addr, int nb, uint8_t* req){
+static int _modbus_ipc_build_request_basis(
+    modbus_t *ctx, int function, int addr, int nb, uint8_t *req)
+{
     assert(ctx->slave != -1);
     req[0] = ctx->slave;
     req[1] = function;
@@ -73,94 +76,112 @@ static int _modbus_ipc_build_request_basis(modbus_t* ctx, int function, int addr
     return _MODBUS_IPC_PRESET_REQ_LENGTH;
 }
 
-static int _modbus_ipc_build_response_basis(sft_t* sft, uint8_t* rsp){
+static int _modbus_ipc_build_response_basis(sft_t *sft, uint8_t *rsp)
+{
     rsp[0] = sft->slave;
     rsp[1] = sft->function;
     return _MODBUS_IPC_PRESET_RSP_LENGTH;
 }
 
-static uint16_t crc16(uint8_t* buffer, uint16_t buffer_length){
-    uint8_t crc_hi = 0xff;
-    uint8_t crc_lo = 0xff;
+static uint16_t crc16(uint8_t *buffer, uint16_t buffer_length)
+{
+    uint8_t crc_hi = 0xFF;
+    uint8_t crc_lo = 0xFF;
     unsigned int i;
-    while(buffer_length--){
+    while (buffer_length--) {
         i = crc_lo ^ *buffer++;
         crc_lo = crc_hi ^ table_crc_hi[i];
         crc_hi = table_crc_lo[i];
     }
-    return crc_hi << 8 | crc_lo;
+    return (crc_hi << 8 | crc_lo);
 }
 
-static int _modbus_ipc_get_response_tid(uint8_t const* req){
+static int _modbus_ipc_get_response_tid(const uint8_t *req)
+{
     return 0;
 }
 
-static int _modbus_ipc_send_msg_pre(uint8_t* req, int req_length){
+static int _modbus_ipc_send_msg_pre(uint8_t *req, int req_length)
+{
     uint16_t crc = crc16(req, req_length);
-    req[req_length++] = crc & 0x00ff;
+    req[req_length++] = crc & 0x00FF;
     req[req_length++] = crc >> 8;
     return req_length;
 }
 
-static ssize_t _modbus_ipc_send(modbus_t* ctx, uint8_t const* req, int req_length){
+static ssize_t _modbus_ipc_send(modbus_t *ctx, const uint8_t *req, int req_length)
+{
     return write(ctx->s, req, req_length);
 }
 
-static int _modbus_ipc_receive(modbus_t* ctx, uint8_t* req){
+static int _modbus_ipc_receive(modbus_t *ctx, uint8_t *req)
+{
     int rc;
-    modbus_ipc_t* ctx_ipc = ctx->backend_data;
-    if(ctx_ipc->confirmation_to_ignore){
-        _modbus_receive_msg(ctx, req, MSG_CONFIRMATION);
+    modbus_ipc_t *ctx_ipc = ctx->backend_data;
+    if (ctx_ipc->confirmation_to_ignore) {
+        (void) _modbus_receive_msg(ctx, req, MSG_CONFIRMATION);
         ctx_ipc->confirmation_to_ignore = FALSE;
         rc = 0;
-        if(ctx->debug){
+        if (ctx->debug) {
             printf("Confirmation to ignore\n");
         }
-    }else{
+    } else {
         rc = _modbus_receive_msg(ctx, req, MSG_INDICATION);
-        if(rc == 0){
+        if (rc == 0) {
             ctx_ipc->confirmation_to_ignore = TRUE;
         }
     }
     return rc;
 }
 
-static ssize_t _modbus_ipc_recv(modbus_t* ctx, uint8_t* rsp, int rsp_length){
+static ssize_t _modbus_ipc_recv(modbus_t *ctx, uint8_t *rsp, int rsp_length)
+{
     return read(ctx->r, rsp, rsp_length);
 }
 
-static int _modbus_ipc_flush(modbus_t* ctx);
+static int _modbus_ipc_flush(modbus_t *);
 
-static int _modbus_ipc_pre_check_confirmation(modbus_t* ctx, uint8_t const* req, uint8_t const* rsp, int rsp_length){
-    if(req[0] != rsp[0] && req[0] != MODBUS_BROADCAST_ADDRESS){
-        if(ctx->debug){
-            fprintf(stderr, "The responding slave %d isn't the requested slave %d\n", rsp[0], req[0]);
+static int _modbus_ipc_pre_check_confirmation(modbus_t *ctx,
+                                              const uint8_t *req,
+                                              const uint8_t *rsp,
+                                              int rsp_length)
+{
+    if (req[0] != rsp[0] && req[0] != MODBUS_BROADCAST_ADDRESS) {
+        if (ctx->debug) {
+            fprintf(stderr,
+                    "The responding slave %d isn't the requested slave %d\n",
+                    rsp[0],
+                    req[0]);
         }
         errno = EMBBADSLAVE;
         return -1;
-    }else{
+    } else {
         return 0;
     }
 }
 
-static int _modbus_ipc_check_integrity(modbus_t* ctx, uint8_t* msg, int const msg_length){
+static int _modbus_ipc_check_integrity(modbus_t *ctx, uint8_t *msg, const int msg_length)
+{
     uint16_t crc_calculated;
     uint16_t crc_received;
     int slave = msg[0];
     crc_calculated = crc16(msg, msg_length - 2);
     crc_received = (msg[msg_length - 1] << 8) | msg[msg_length - 2];
-    if(crc_calculated != crc_received){
-        if(ctx->debug){
-            fprintf(stderr, "ERROR CRC received 0x%0X != CRC calculated 0x%0X\n", crc_received, crc_calculated);
+    if (crc_calculated != crc_received) {
+        if (ctx->debug) {
+            fprintf(stderr,
+                    "ERROR CRC received 0x%0X != CRC calculated 0x%0X\n",
+                    crc_received,
+                    crc_calculated);
         }
-        if(ctx->error_recovery & MODBUS_ERROR_RECOVERY_PROTOCOL){
+        if (ctx->error_recovery & MODBUS_ERROR_RECOVERY_PROTOCOL) {
             _modbus_ipc_flush(ctx);
         }
         errno = EMBBADCRC;
         return -1;
     }
-    if(slave != ctx->slave && slave != MODBUS_BROADCAST_ADDRESS){
-        if(ctx->debug){
+    if (slave != ctx->slave && slave != MODBUS_BROADCAST_ADDRESS) {
+        if (ctx->debug) {
             printf("Request for slave %d ignored (not %d)\n", slave, ctx->slave);
         }
         return 0;
@@ -168,80 +189,97 @@ static int _modbus_ipc_check_integrity(modbus_t* ctx, uint8_t* msg, int const ms
     return msg_length;
 }
 
-static int _modbus_ipc_connect(modbus_t* ctx){
+static int _modbus_ipc_connect(modbus_t *ctx)
+{
     int flags;
-    modbus_ipc_t* ctx_ipc = ctx->backend_data;
-    if(ctx->debug){
+    modbus_ipc_t *ctx_ipc = ctx->backend_data;
+    if (ctx->debug) {
         printf("Opening %s and %s\n", ctx_ipc->deviceR, ctx_ipc->deviceS);
     }
     flags = O_RDONLY | O_NDELAY | O_CLOEXEC;
     ctx->r = open(ctx_ipc->deviceR, flags);
-    if(ctx->r < 0){
-        if(ctx->debug){
-            fprintf(stderr, "ERROR Can't open the device %s (%s)\n", ctx_ipc->deviceR, strerror(errno));
+    if (ctx->r < 0) {
+        if (ctx->debug) {
+            fprintf(stderr,
+                    "ERROR Can't open the deviceR %s (%s)\n",
+                    ctx_ipc->deviceR,
+                    strerror(errno));
         }
         return -1;
     }
     flags = O_WRONLY | O_CLOEXEC;
     ctx->s = open(ctx_ipc->deviceS, flags);
-    if(ctx->s < 0){
-        if(ctx->debug){
-            fprintf(stderr, "ERROR Can't open the device %s (%s)\n", ctx_ipc->deviceS, strerror(errno));
+    if (ctx->s < 0) {
+        if (ctx->debug) {
+            fprintf(stderr,
+                    "ERROR Can't open the deviceS %s (%s)\n",
+                    ctx_ipc->deviceS,
+                    strerror(errno));
         }
         return -1;
     }
     return 0;
 }
 
-static unsigned int _modbus_ipc_is_connected(modbus_t* ctx){
+static unsigned int _modbus_ipc_is_connected(modbus_t *ctx)
+{
     return ctx->r >= 0 && ctx->s >= 0;
 }
 
-static void _modbus_ipc_close(modbus_t* ctx){
-    if(ctx->r >= 0){
+static void _modbus_ipc_close(modbus_t *ctx)
+{
+    if (ctx->r >= 0) {
         close(ctx->r);
         ctx->r = -1;
     }
-    if(ctx->s >= 0){
+    if (ctx->s >= 0) {
         close(ctx->s);
         ctx->s = -1;
     }
 }
 
-static int _modbus_ipc_flush(modbus_t* ctx){
+static int _modbus_ipc_flush(modbus_t *ctx)
+{
     return 0;
 }
 
-static int _modbus_ipc_select(modbus_t* ctx, fd_set* rset, struct timeval* tv, int length_to_read){
+static int
+_modbus_ipc_select(modbus_t *ctx, fd_set *rset, struct timeval *tv, int length_to_read)
+{
     int s_rc;
-    while((s_rc = select(ctx->r + 1, rset, NULL, NULL, tv)) == -1){
-        if(errno == EINTR){
-            if(ctx->debug){
+    while ((s_rc = select(ctx->r + 1, rset, NULL, NULL, tv)) == -1) {
+        if (errno == EINTR) {
+            if (ctx->debug) {
                 fprintf(stderr, "A non blocked signal was caught\n");
             }
             FD_ZERO(rset);
+            if (ctx->r < 0 || ctx->r >= FD_SETSIZE) {
+                errno = EINVAL;
+                return -1;
+            }
             FD_SET(ctx->r, rset);
-        }else{
+        } else {
             return -1;
         }
     }
-    if(s_rc == 0){
+    if (s_rc == 0) {
         errno = ETIMEDOUT;
         return -1;
     }
     return s_rc;
 }
 
-static void _modbus_ipc_free(modbus_t* ctx){
-    if(ctx->backend_data){
-        free(((modbus_ipc_t*)ctx->backend_data)->deviceR);
-        free(((modbus_ipc_t*)ctx->backend_data)->deviceS);
+static void _modbus_ipc_free(modbus_t *ctx)
+{
+    if (ctx->backend_data) {
+        free(((modbus_ipc_t *) ctx->backend_data)->deviceR);
+        free(((modbus_ipc_t *) ctx->backend_data)->deviceS);
         free(ctx->backend_data);
     }
     free(ctx);
 }
 
-modbus_backend_t const _modbus_ipc_backend = {
+const modbus_backend_t _modbus_ipc_backend = {
     _MODBUS_BACKEND_TYPE_IPC,
     _MODBUS_IPC_HEADER_LENGTH,
     _MODBUS_IPC_CHECKSUM_LENGTH,
@@ -264,32 +302,43 @@ modbus_backend_t const _modbus_ipc_backend = {
     _modbus_ipc_free
 };
 
-modbus_t* modbus_new_ipc(char const* deviceR, char const* deviceS){
-    modbus_t* ctx;
-    modbus_ipc_t* ctx_ipc;
-    ctx = (modbus_t*)malloc(sizeof(modbus_t));
-    if(ctx == NULL){
+modbus_t *
+modbus_new_ipc(const char *deviceR, const char *deviceS)
+{
+    modbus_t *ctx;
+    modbus_ipc_t *ctx_ipc;
+    if (deviceR == NULL || *deviceR == 0) {
+        fprintf(stderr, "The deviceR string is empty\n");
+        errno = EINVAL;
+        return NULL;
+    }
+    if (deviceS == NULL || *deviceS == 0) {
+        fprintf(stderr, "The deviceS string is empty\n");
+        errno = EINVAL;
+        return NULL;
+    }
+    ctx = (modbus_t *) malloc(sizeof(modbus_t));
+    if (ctx == NULL) {
         return NULL;
     }
     _modbus_init_common(ctx);
     ctx->backend = &_modbus_ipc_backend;
-    ctx->backend_data = (modbus_ipc_t*)malloc(sizeof(modbus_ipc_t));
-    if(ctx->backend_data == NULL){
+    ctx->backend_data = (modbus_ipc_t *) malloc(sizeof(modbus_ipc_t));
+    if (ctx->backend_data == NULL) {
         modbus_free(ctx);
         errno = ENOMEM;
         return NULL;
     }
-    ctx_ipc = (modbus_ipc_t*)ctx->backend_data;
-    ctx_ipc->deviceR = (char*)malloc((strlen(deviceR) + 1) * sizeof(char));
-    if(ctx_ipc->deviceR == NULL){
+    ctx_ipc = (modbus_ipc_t *) ctx->backend_data;
+    ctx_ipc->deviceR = (char *) malloc((strlen(deviceR) + 1) * sizeof(char));
+    if (ctx_ipc->deviceR == NULL) {
         modbus_free(ctx);
         errno = ENOMEM;
         return NULL;
     }
     strcpy(ctx_ipc->deviceR, deviceR);
-    ctx_ipc->deviceS = (char*)malloc((strlen(deviceS) + 1) * sizeof(char));
-    if(ctx_ipc->deviceS == NULL){
-        free(ctx_ipc->deviceR);
+    ctx_ipc->deviceS = (char *) malloc((strlen(deviceS) + 1) * sizeof(char));
+    if (ctx_ipc->deviceS == NULL) {
         modbus_free(ctx);
         errno = ENOMEM;
         return NULL;

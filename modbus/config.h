@@ -143,7 +143,7 @@
 #define PACKAGE_NAME "libmodbus"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "libmodbus 3.1.11"
+#define PACKAGE_STRING "libmodbus 3.1.12"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "libmodbus"
@@ -152,7 +152,7 @@
 #define PACKAGE_URL "http://libmodbus.org/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "3.1.11"
+#define PACKAGE_VERSION "3.1.12"
 
 /* Define to 1 if all of the C89 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
@@ -252,7 +252,7 @@
 
 
 /* Version number of package */
-#define VERSION "3.1.11"
+#define VERSION "3.1.12"
 
 /* _ */
 #define WINVER 0x0501

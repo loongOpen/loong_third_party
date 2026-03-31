@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.10)
-project(loong_third_party VERSION 4.0.0 LANGUAGES C CXX)
+project(loong_third_party VERSION 4.2.0 LANGUAGES C CXX)
 option(AARCH64 "aarch64" OFF)
 option(RISCV64 "riscv64" OFF)
 set(march x86_64)
