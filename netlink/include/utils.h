@@ -22,7 +22,7 @@
 extern int preferred_family;
 extern int human_readable;
 extern int show_stats;
-extern int show_details;
+int show_details;
 extern int show_raw;
 extern int resolve_hosts;
 extern int oneline;

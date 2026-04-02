@@ -14,6 +14,10 @@
 #include <linux/netconf.h>
 #include <arpa/inet.h>
 
+#ifdef __cplusplus
+extern "C"{
+#endif
+
 struct rtnl_handle {
 	int			fd;
 	struct sockaddr_nl	local;
@@ -373,5 +377,9 @@ int rtnl_from_file(FILE *, rtnl_listen_filter_t handler,
 	for ((attr) = (void *)RTA_DATA(nest); \
 	     RTA_OK(attr, RTA_PAYLOAD(nest) - ((char *)(attr) - (char *)RTA_DATA((nest)))); \
 	     (attr) = RTA_TAIL((attr)))
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif /* __LIBNETLINK_H__ */

@@ -1,0 +1,37 @@
+diff -aruN a/include/libnetlink.h b/include/libnetlink.h
+--- a/include/libnetlink.h	2026-02-18 23:36:13.000000000 +0800
++++ b/include/libnetlink.h	2026-04-02 14:18:49.332245107 +0800
+@@ -14,6 +14,10 @@
+ #include <linux/netconf.h>
+ #include <arpa/inet.h>
+ 
++#ifdef __cplusplus
++extern "C"{
++#endif
++
+ struct rtnl_handle {
+ 	int			fd;
+ 	struct sockaddr_nl	local;
+@@ -374,4 +378,8 @@
+ 	     RTA_OK(attr, RTA_PAYLOAD(nest) - ((char *)(attr) - (char *)RTA_DATA((nest)))); \
+ 	     (attr) = RTA_TAIL((attr)))
+ 
+-#endif /* __LIBNETLINK_H__ */
++#ifdef __cplusplus
++}
++#endif
++
++#endif /* __LIBNETLINK_H__ */
+\ No newline at end of file
+diff -aruN a/include/utils.h b/include/utils.h
+--- a/include/utils.h	2026-02-18 23:36:13.000000000 +0800
++++ b/include/utils.h	2026-04-02 14:18:59.071411746 +0800
+@@ -22,7 +22,7 @@
+ extern int preferred_family;
+ extern int human_readable;
+ extern int show_stats;
+-extern int show_details;
++int show_details;
+ extern int show_raw;
+ extern int resolve_hosts;
+ extern int oneline;
