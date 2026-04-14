@@ -36,6 +36,14 @@ struct dc_param
   std::int64_t shift_time{0};
   std::int64_t cycle_time1{};
 };
+struct DcRealStatus {
+  bool dc_configured;         // 配置上是否要求启用 DC
+  bool ref_clock_selected;    // 是否已选择参考时钟
+  bool ref_clock_time_valid;  // 是否能读到参考时钟时间
+  bool sync_monitor_valid;    // sync monitor 结果是否有效
+  std::uint32_t sync_diff_ns; // 同步误差(ns); 无效时建议为 0xFFFFFFFF
+  bool is_synced;             // sync_monitor_valid && diff < threshold
+};
 struct slave_config_info
 {
   ecat::slave_id id;
@@ -309,6 +317,12 @@ uint16_t sdo_upload(std::uint16_t pos, sdo_idx t_sdo_idx, bool complete_access);
   std::uint32_t get_working_counter();
 
   domain_state get_domain_state();
+
+  task::dc_mode_type get_dc_mode() const;
+
+  std::string get_dc_mode_str() const;
+
+  DcRealStatus get_dc_real_status(uint32_t threshold_ns = 1000);
 
   void check_eni(bool check = true);
 

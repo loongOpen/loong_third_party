@@ -5,18 +5,19 @@
 #include <map>
 #include <optional>
 #include <string>
+#include <ecat/task.hpp>
 
 namespace ecat
 {
 
-struct dc_param
-{
-  std::uint16_t assign_activate{};
+// struct dc_param
+// {
+//   std::uint16_t assign_activate{};
 
-  std::int64_t cycle_time0{};
-  std::int64_t shift_time{0};
-  std::int64_t cycle_time1{};
-};
+//   std::int64_t cycle_time0{};
+//   std::int64_t shift_time{0};
+//   std::int64_t cycle_time1{};
+// };
 
 struct slave_eni_config_info
 {

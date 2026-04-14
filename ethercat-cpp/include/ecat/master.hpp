@@ -342,15 +342,12 @@ public:
    */
   ECAT_DECL void sync_monitor_queue() noexcept;
 
-  /** Processes the DC synchrony monitoring datagram.
+  /** Processes the DC synchrony monitoring datagram result.
    *
-   * If the sync monitoring datagram was sent before with
-   * master::sync_monitor_queue(), the result can be queried with this
-   * method.
-   *
-   * \return Upper estimation of the maximum time difference in ns.
+   * \return The upper estimation of the DC synchrony in ns if the ioctl
+   * succeeds; std::nullopt otherwise.
    */
-  ECAT_DECL std::uint32_t sync_monitor_process() noexcept;
+  ECAT_DECL std::optional<std::uint32_t> sync_monitor_process() noexcept;
 
   /** Get the lower 32 bit of the reference clock system time.
    *

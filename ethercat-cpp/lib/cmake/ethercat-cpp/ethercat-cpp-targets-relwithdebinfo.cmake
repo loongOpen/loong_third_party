@@ -13,8 +13,8 @@ set_target_properties(ethercat-cpp::ethercat-cpp PROPERTIES
   IMPORTED_SONAME_RELWITHDEBINFO "libethercat-cpp.so.4.1.4"
   )
 
-list(APPEND _cmake_import_check_targets ethercat-cpp::ethercat-cpp )
-list(APPEND _cmake_import_check_files_for_ethercat-cpp::ethercat-cpp "${_IMPORT_PREFIX}/lib/libethercat-cpp.so.4.1.4" )
+list(APPEND _IMPORT_CHECK_TARGETS ethercat-cpp::ethercat-cpp )
+list(APPEND _IMPORT_CHECK_FILES_FOR_ethercat-cpp::ethercat-cpp "${_IMPORT_PREFIX}/lib/libethercat-cpp.so.4.1.4" )
 
 # Commands beyond this point should not need to know the version.
 set(CMAKE_IMPORT_FILE_VERSION)
