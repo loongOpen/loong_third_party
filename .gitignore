@@ -12,4 +12,7 @@
 !libqiuniu.so
 !libqiuniu.a
 !libxerces-c-3.2.so
+!libenpht-can.so
+!libeph506_can.so
+!libeph507-can.so
 build/*
