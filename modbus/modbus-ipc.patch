@@ -1,6 +1,6 @@
 diff -aruN a/src/Makefile.am b/src/Makefile.am
 --- a/src/Makefile.am	2025-03-24 18:15:38.090285847 +0800
-+++ b/src/Makefile.am	2026-04-01 01:34:40.644646812 +0800
++++ b/src/Makefile.am	2026-08-27 14:05:47.986697538 +0800
 @@ -14,6 +14,9 @@
          modbus.h \
          modbus-data.c \
@@ -22,7 +22,7 @@ diff -aruN a/src/Makefile.am b/src/Makefile.am
  EXTRA_DIST += modbus-version.h.in
 diff -aruN a/src/Makefile.in b/src/Makefile.in
 --- a/src/Makefile.in	2026-02-13 23:03:32.602198111 +0800
-+++ b/src/Makefile.in	2026-04-01 01:34:40.644646812 +0800
++++ b/src/Makefile.in	2026-08-27 14:05:47.990697538 +0800
 @@ -136,8 +136,8 @@
  	"$(DESTDIR)$(libmodbusincludedir)"
  LTLIBRARIES = $(lib_LTLIBRARIES)
@@ -82,7 +82,7 @@ diff -aruN a/src/Makefile.in b/src/Makefile.in
  	-rm -f ./$(DEPDIR)/modbus.Plo
 diff -aruN a/src/modbus-ipc-private.h b/src/modbus-ipc-private.h
 --- a/src/modbus-ipc-private.h	1970-01-01 08:00:00.000000000 +0800
-+++ b/src/modbus-ipc-private.h	2026-04-01 01:34:40.644646812 +0800
++++ b/src/modbus-ipc-private.h	2026-08-27 14:05:47.990697538 +0800
 @@ -0,0 +1,16 @@
 +#ifndef MODBUS_IPC_PRIVATE_H
 +#define MODBUS_IPC_PRIVATE_H
@@ -103,7 +103,7 @@ diff -aruN a/src/modbus-ipc-private.h b/src/modbus-ipc-private.h
 \ No newline at end of file
 diff -aruN a/src/modbus-ipc.c b/src/modbus-ipc.c
 --- a/src/modbus-ipc.c	1970-01-01 08:00:00.000000000 +0800
-+++ b/src/modbus-ipc.c	2026-04-01 01:35:11.791093112 +0800
++++ b/src/modbus-ipc.c	2026-08-27 14:05:47.990697538 +0800
 @@ -0,0 +1,349 @@
 +#include <errno.h>
 +#include <fcntl.h>
@@ -457,7 +457,7 @@ diff -aruN a/src/modbus-ipc.c b/src/modbus-ipc.c
 \ No newline at end of file
 diff -aruN a/src/modbus-ipc.h b/src/modbus-ipc.h
 --- a/src/modbus-ipc.h	1970-01-01 08:00:00.000000000 +0800
-+++ b/src/modbus-ipc.h	2026-04-01 01:34:40.644646812 +0800
++++ b/src/modbus-ipc.h	2026-08-27 14:05:47.990697538 +0800
 @@ -0,0 +1,15 @@
 +#ifndef MODBUS_IPC_H
 +#define MODBUS_IPC_H
@@ -477,7 +477,7 @@ diff -aruN a/src/modbus-ipc.h b/src/modbus-ipc.h
 \ No newline at end of file
 diff -aruN a/src/modbus-private.h b/src/modbus-private.h
 --- a/src/modbus-private.h	2025-03-24 18:15:38.093669547 +0800
-+++ b/src/modbus-private.h	2026-04-01 01:34:40.644646812 +0800
++++ b/src/modbus-private.h	2026-08-27 14:05:47.990697538 +0800
 @@ -42,7 +42,8 @@
  #define _BYTE_TIMEOUT     500000
  
@@ -497,18 +497,20 @@ diff -aruN a/src/modbus-private.h b/src/modbus-private.h
      int debug;
      int error_recovery;
      int quirks;
-@@ -113,7 +114,7 @@
+@@ -112,9 +113,7 @@
+ void _error_print(modbus_t *ctx, const char *context);
  int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type);
  
- #ifndef HAVE_STRLCPY
+-#ifndef HAVE_STRLCPY
 -size_t strlcpy(char *dest, const char *src, size_t dest_size);
+-#endif
 +size_t strlcpy_(char *dest, const char *src, size_t dest_size);
- #endif
  
  MODBUS_END_DECLS
+ 
 diff -aruN a/src/modbus-tcp.c b/src/modbus-tcp.c
 --- a/src/modbus-tcp.c	2026-02-13 22:50:24.558121064 +0800
-+++ b/src/modbus-tcp.c	2026-04-01 01:34:40.644646812 +0800
++++ b/src/modbus-tcp.c	2026-08-27 14:05:47.990697538 +0800
 @@ -990,7 +990,7 @@
  
      if (ip != NULL) {
@@ -520,7 +522,7 @@ diff -aruN a/src/modbus-tcp.c b/src/modbus-tcp.c
              modbus_free(ctx);
 diff -aruN a/src/modbus.c b/src/modbus.c
 --- a/src/modbus.c	2026-02-13 22:50:24.558121064 +0800
-+++ b/src/modbus.c	2026-04-01 01:34:40.644646812 +0800
++++ b/src/modbus.c	2026-08-27 14:05:47.990697538 +0800
 @@ -385,14 +385,25 @@
  
      /* Add a file descriptor to the set */
@@ -561,7 +563,15 @@ diff -aruN a/src/modbus.c b/src/modbus.c
      ctx->s = -1;
  
      ctx->debug = FALSE;
-@@ -2117,7 +2129,7 @@
+@@ -2104,7 +2116,6 @@
+     free(mb_mapping);
+ }
+ 
+-#ifndef HAVE_STRLCPY
+ /*
+  * Function strlcpy was originally developed by
+  * Todd C. Miller <Todd.Miller@courtesan.com> to simplify writing secure code.
+@@ -2117,7 +2128,7 @@
   * will be copied.  Always NUL terminates (unless dest_size == 0).  Returns
   * strlen(src); if retval >= dest_size, truncation occurred.
   */
@@ -570,9 +580,14 @@ diff -aruN a/src/modbus.c b/src/modbus.c
  {
      register char *d = dest;
      register const char *s = src;
+@@ -2141,4 +2152,3 @@
+ 
+     return (s - src - 1); /* count does not include NUL */
+ }
+-#endif
 diff -aruN a/src/modbus.h b/src/modbus.h
 --- a/src/modbus.h	2025-03-24 18:15:38.105547269 +0800
-+++ b/src/modbus.h	2026-04-01 01:34:40.644646812 +0800
++++ b/src/modbus.h	2026-08-27 14:05:47.990697538 +0800
 @@ -330,6 +330,7 @@
  MODBUS_API void modbus_set_float_badc(float f, uint16_t *dest);
  MODBUS_API void modbus_set_float_cdab(float f, uint16_t *dest);

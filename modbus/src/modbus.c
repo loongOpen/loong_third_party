@@ -2116,7 +2116,6 @@ void modbus_mapping_free(modbus_mapping_t *mb_mapping)
     free(mb_mapping);
 }
 
-#ifndef HAVE_STRLCPY
 /*
  * Function strlcpy was originally developed by
  * Todd C. Miller <Todd.Miller@courtesan.com> to simplify writing secure code.
@@ -2153,4 +2152,3 @@ size_t strlcpy_(char *dest, const char *src, size_t dest_size)
 
     return (s - src - 1); /* count does not include NUL */
 }
-#endif
