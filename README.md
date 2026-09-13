@@ -10,3 +10,7 @@ make
 cd build
 cmake -DRISCV64=ON ..
 make
+
+cd build
+cmake -DLOONGARCH64=ON ..
+make
