@@ -12,6 +12,13 @@
 
 namespace Eigen {
 
+/** \class TensorForcedEval
+  * \ingroup CXX11_Tensor_Module
+  *
+  * \brief Tensor reshaping class.
+  *
+  *
+  */
 namespace internal {
 template<typename XprType>
 struct traits<TensorForcedEvalOp<XprType> >
@@ -46,14 +53,12 @@ struct nested<TensorForcedEvalOp<XprType>, 1, typename eval<TensorForcedEvalOp<X
 
 }  // end namespace internal
 
-/**
- * \ingroup CXX11_Tensor_Module
- *
- * \brief Tensor reshaping class.
- */
-template <typename XprType>
-class TensorForcedEvalOp : public TensorBase<TensorForcedEvalOp<XprType>, ReadOnlyAccessors> {
- public:
+
+
+template<typename XprType>
+class TensorForcedEvalOp : public TensorBase<TensorForcedEvalOp<XprType>, ReadOnlyAccessors>
+{
+  public:
   typedef typename Eigen::internal::traits<TensorForcedEvalOp>::Scalar Scalar;
   typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename internal::remove_const<typename XprType::CoeffReturnType>::type CoeffReturnType;

@@ -191,8 +191,7 @@ MatrixBase<Derived>::diagonal()
 
 /** This is the const version of diagonal(). */
 template<typename Derived>
-EIGEN_DEVICE_FUNC inline
-const typename MatrixBase<Derived>::ConstDiagonalReturnType
+EIGEN_DEVICE_FUNC inline typename MatrixBase<Derived>::ConstDiagonalReturnType
 MatrixBase<Derived>::diagonal() const
 {
   return ConstDiagonalReturnType(derived());
@@ -210,18 +209,18 @@ MatrixBase<Derived>::diagonal() const
   *
   * \sa MatrixBase::diagonal(), class Diagonal */
 template<typename Derived>
-EIGEN_DEVICE_FUNC inline Diagonal<Derived, DynamicIndex>
+EIGEN_DEVICE_FUNC inline typename MatrixBase<Derived>::DiagonalDynamicIndexReturnType
 MatrixBase<Derived>::diagonal(Index index)
 {
-  return Diagonal<Derived, DynamicIndex>(derived(), index);
+  return DiagonalDynamicIndexReturnType(derived(), index);
 }
 
 /** This is the const version of diagonal(Index). */
 template<typename Derived>
-EIGEN_DEVICE_FUNC inline const Diagonal<const Derived, DynamicIndex>
+EIGEN_DEVICE_FUNC inline typename MatrixBase<Derived>::ConstDiagonalDynamicIndexReturnType
 MatrixBase<Derived>::diagonal(Index index) const
 {
-  return Diagonal<const Derived, DynamicIndex>(derived(), index);
+  return ConstDiagonalDynamicIndexReturnType(derived(), index);
 }
 
 /** \returns an expression of the \a DiagIndex-th sub or super diagonal of the matrix \c *this
@@ -238,20 +237,20 @@ MatrixBase<Derived>::diagonal(Index index) const
 template<typename Derived>
 template<int Index_>
 EIGEN_DEVICE_FUNC
-inline Diagonal<Derived, Index_>
+inline typename MatrixBase<Derived>::template DiagonalIndexReturnType<Index_>::Type
 MatrixBase<Derived>::diagonal()
 {
-  return Diagonal<Derived, Index_>(derived());
+  return typename DiagonalIndexReturnType<Index_>::Type(derived());
 }
 
 /** This is the const version of diagonal<int>(). */
 template<typename Derived>
 template<int Index_>
 EIGEN_DEVICE_FUNC
-inline const Diagonal<const Derived, Index_>
+inline typename MatrixBase<Derived>::template ConstDiagonalIndexReturnType<Index_>::Type
 MatrixBase<Derived>::diagonal() const
 {
-  return  Diagonal<const Derived, Index_>(derived());
+  return typename ConstDiagonalIndexReturnType<Index_>::Type(derived());
 }
 
 } // end namespace Eigen

@@ -13,7 +13,22 @@
 
 namespace Eigen {
 
+/** \internal
+  *
+  * \class TensorIntDiv
+  * \ingroup CXX11_Tensor_Module
+  *
+  * \brief Fast integer division by a constant.
+  *
+  * See the paper from Granlund and Montgomery for explanation.
+  *   (at https://doi.org/10.1145/773473.178249)
+  *
+  * \sa Tensor
+  */
+
 namespace internal {
+
+namespace {
 
   // Note: result is undefined if val == 0
   template <typename T>
@@ -120,18 +135,9 @@ namespace internal {
 #endif
     }
   };
+}
 
-/** \internal
- *
- * \ingroup CXX11_Tensor_Module
- *
- * \brief Fast integer division by a constant.
- *
- * See the paper from Granlund and Montgomery for explanation.
- *   (at https://doi.org/10.1145/773473.178249)
- *
- * \sa Tensor
- */
+
 template <typename T, bool div_gt_one = false>
 struct TensorIntDivisor {
  public:
@@ -246,7 +252,7 @@ private:
 
 
 template <typename T, bool div_gt_one>
-EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE T operator / (const T& numerator, const TensorIntDivisor<T, div_gt_one>& divisor) {
+static EIGEN_DEVICE_FUNC EIGEN_STRONG_INLINE T operator / (const T& numerator, const TensorIntDivisor<T, div_gt_one>& divisor) {
   return divisor.divide(numerator);
 }
 

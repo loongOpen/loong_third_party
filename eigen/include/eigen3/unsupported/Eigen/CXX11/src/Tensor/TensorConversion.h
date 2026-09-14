@@ -12,6 +12,13 @@
 
 namespace Eigen {
 
+/** \class TensorConversionOp
+  * \ingroup CXX11_Tensor_Module
+  *
+  * \brief Tensor conversion class. This class makes it possible to vectorize
+  * type casting operations when the number of scalars per packet in the source
+  * and the destination type differ
+  */
 namespace internal {
 template<typename TargetType, typename XprType>
 struct traits<TensorConversionOp<TargetType, XprType> >
@@ -165,15 +172,9 @@ struct PacketConverter<TensorEvaluator, SrcPacket, TgtPacket, 1, TgtCoeffRatio> 
   const typename TensorEvaluator::Index m_maxIndex;
 };
 
-/**
- * \ingroup CXX11_Tensor_Module
- *
- * \brief Tensor conversion class. This class makes it possible to vectorize
- * type casting operations when the number of scalars per packet in the source
- * and the destination type differ
- */
-template <typename TargetType, typename XprType>
-class TensorConversionOp : public TensorBase<TensorConversionOp<TargetType, XprType>, ReadOnlyAccessors> {
+template<typename TargetType, typename XprType>
+class TensorConversionOp : public TensorBase<TensorConversionOp<TargetType, XprType>, ReadOnlyAccessors>
+{
   public:
     typedef typename internal::traits<TensorConversionOp>::Scalar Scalar;
     typedef typename internal::traits<TensorConversionOp>::StorageKind StorageKind;

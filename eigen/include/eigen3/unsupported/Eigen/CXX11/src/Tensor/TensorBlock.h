@@ -242,7 +242,7 @@ class TensorBlockDescriptor {
     const DestinationBufferKind& kind() const { return m_kind; }
 
    private:
-    friend class TensorBlockDescriptor<NumDims, IndexType>;
+    friend class TensorBlockDescriptor;
 
     DestinationBuffer() : m_data(NULL), m_data_type_size(0), m_kind(kEmpty) {}
 
@@ -706,7 +706,7 @@ class TensorMaterializedBlock {
     }
 
    private:
-    friend class TensorMaterializedBlock<Scalar, NumDims, Layout, IndexType>;
+    friend class TensorMaterializedBlock;
 
     Storage(Scalar* data, const Dimensions& dimensions,
             const Dimensions& strides, bool materialized_in_output,

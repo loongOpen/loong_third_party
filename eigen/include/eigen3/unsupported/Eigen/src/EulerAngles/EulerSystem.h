@@ -284,7 +284,6 @@ namespace Eigen
 
 #define EIGEN_EULER_SYSTEM_TYPEDEF(A, B, C) \
   /** \ingroup EulerAngles_Module */ \
-  /** \brief \noop                */ \
   typedef EulerSystem<EULER_##A, EULER_##B, EULER_##C> EulerSystem##A##B##C;
   
   EIGEN_EULER_SYSTEM_TYPEDEF(X,Y,Z)

@@ -12,6 +12,13 @@
 
 namespace Eigen {
 
+/** \class TensorGeneratorOp
+  * \ingroup CXX11_Tensor_Module
+  *
+  * \brief Tensor generator class.
+  *
+  *
+  */
 namespace internal {
 template<typename Generator, typename XprType>
 struct traits<TensorGeneratorOp<Generator, XprType> > : public traits<XprType>
@@ -41,14 +48,12 @@ struct nested<TensorGeneratorOp<Generator, XprType>, 1, typename eval<TensorGene
 
 }  // end namespace internal
 
-/**
- * \ingroup CXX11_Tensor_Module
- *
- * \brief Tensor generator class.
- */
-template <typename Generator, typename XprType>
-class TensorGeneratorOp : public TensorBase<TensorGeneratorOp<Generator, XprType>, ReadOnlyAccessors> {
- public:
+
+
+template<typename Generator, typename XprType>
+class TensorGeneratorOp : public TensorBase<TensorGeneratorOp<Generator, XprType>, ReadOnlyAccessors>
+{
+  public:
   typedef typename Eigen::internal::traits<TensorGeneratorOp>::Scalar Scalar;
   typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename XprType::CoeffReturnType CoeffReturnType;

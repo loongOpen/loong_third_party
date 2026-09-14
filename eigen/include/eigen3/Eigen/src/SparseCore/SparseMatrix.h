@@ -781,17 +781,18 @@ class SparseMatrix
       return *this;
     }
 
+#ifndef EIGEN_PARSED_BY_DOXYGEN
     template<typename OtherDerived>
     inline SparseMatrix& operator=(const EigenBase<OtherDerived>& other)
     { return Base::operator=(other.derived()); }
 
     template<typename Lhs, typename Rhs>
     inline SparseMatrix& operator=(const Product<Lhs,Rhs,AliasFreeProduct>& other);
+#endif // EIGEN_PARSED_BY_DOXYGEN
 
     template<typename OtherDerived>
     EIGEN_DONT_INLINE SparseMatrix& operator=(const SparseMatrixBase<OtherDerived>& other);
 
-#ifndef EIGEN_NO_IO
     friend std::ostream & operator << (std::ostream & s, const SparseMatrix& m)
     {
       EIGEN_DBG_SPARSE(
@@ -836,7 +837,6 @@ class SparseMatrix
       s << static_cast<const SparseMatrixBase<SparseMatrix>&>(m);
       return s;
     }
-#endif
 
     /** Destructor */
     inline ~SparseMatrix()

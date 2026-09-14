@@ -35,10 +35,9 @@ public:
     MaxColsAtCompileTime = MatrixType::MaxColsAtCompileTime
   };
 
-  SparseLUTransposeView() : APIBase(), m_sparseLU(NULL) {}
-  SparseLUTransposeView(const SparseLUTransposeView& view) : APIBase() {
+  SparseLUTransposeView() : m_sparseLU(NULL) {}
+  SparseLUTransposeView(const SparseLUTransposeView& view) {
     this->m_sparseLU = view.m_sparseLU;
-    this->m_isInitialized = view.m_isInitialized;
   }
   void setIsInitialized(const bool isInitialized) {this->m_isInitialized = isInitialized;}
   void setSparseLU(SparseLUType* sparseLU) {m_sparseLU = sparseLU;}
@@ -753,13 +752,10 @@ void SparseLU<MatrixType, OrderingType>::factorize(const MatrixType& matrix)
       info = Base::pivotL(jj, m_diagpivotthresh, m_perm_r.indices(), iperm_c.indices(), pivrow, m_glu);
       if ( info ) 
       {
-        m_lastError = "THE MATRIX IS STRUCTURALLY SINGULAR";
-#ifndef EIGEN_NO_IO
+        m_lastError = "THE MATRIX IS STRUCTURALLY SINGULAR ... ZERO COLUMN AT ";
         std::ostringstream returnInfo;
-        returnInfo << " ... ZERO COLUMN AT ";
-        returnInfo << info;
+        returnInfo << info; 
         m_lastError += returnInfo.str();
-#endif
         m_info = NumericalIssue; 
         m_factorizationIsOk = false; 
         return; 
@@ -834,6 +830,7 @@ struct SparseLUMatrixUReturnType : internal::no_assignment_operator
   template<typename Dest>   void solveInPlace(MatrixBase<Dest> &X) const
   {
     Index nrhs = X.cols();
+    Index n    = X.rows();
     // Backward solve with U
     for (Index k = m_mapL.nsuper(); k >= 0; k--)
     {
@@ -853,7 +850,7 @@ struct SparseLUMatrixUReturnType : internal::no_assignment_operator
       {
         // FIXME: the following lines should use Block expressions and not Map!
         Map<const Matrix<Scalar,Dynamic,Dynamic, ColMajor>, 0, OuterStride<> > A( &(m_mapL.valuePtr()[luptr]), nsupc, nsupc, OuterStride<>(lda) );
-        typename Dest::RowsBlockXpr U = X.derived().middleRows(fsupc, nsupc);
+        Map< Matrix<Scalar,Dynamic,Dest::ColsAtCompileTime, ColMajor>, 0, OuterStride<> > U (&(X.coeffRef(fsupc,0)), nsupc, nrhs, OuterStride<>(n) );
         U = A.template triangularView<Upper>().solve(U);
       }
 
@@ -876,6 +873,7 @@ struct SparseLUMatrixUReturnType : internal::no_assignment_operator
   {
     using numext::conj;
     Index nrhs = X.cols();
+    Index n    = X.rows();
     // Forward solve with U
     for (Index k = 0; k <=  m_mapL.nsuper(); k++)
     {
@@ -906,7 +904,7 @@ struct SparseLUMatrixUReturnType : internal::no_assignment_operator
       else
       {
         Map<const Matrix<Scalar,Dynamic,Dynamic, ColMajor>, 0, OuterStride<> > A( &(m_mapL.valuePtr()[luptr]), nsupc, nsupc, OuterStride<>(lda) );
-        typename Dest::RowsBlockXpr U = X.derived().middleRows(fsupc, nsupc);
+        Map< Matrix<Scalar,Dynamic,Dest::ColsAtCompileTime, ColMajor>, 0, OuterStride<> > U (&(X(fsupc,0)), nsupc, nrhs, OuterStride<>(n) );
         if(Conjugate)
           U = A.adjoint().template triangularView<Lower>().solve(U);
         else

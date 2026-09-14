@@ -12,6 +12,14 @@
 
 namespace Eigen {
 
+/** \class TensorAssign
+  * \ingroup CXX11_Tensor_Module
+  *
+  * \brief The tensor assignment class.
+  *
+  * This class is represents the assignment of the values resulting from the evaluation of
+  * the rhs expression to the memory locations denoted by the lhs expression.
+  */
 namespace internal {
 template<typename LhsXprType, typename RhsXprType>
 struct traits<TensorAssignOp<LhsXprType, RhsXprType> >
@@ -47,15 +55,12 @@ struct nested<TensorAssignOp<LhsXprType, RhsXprType>, 1, typename eval<TensorAss
 
 }  // end namespace internal
 
-/** The tensor assignment class.
- * \ingroup CXX11_Tensor_Module
- *
- * This class is represents the assignment of the values resulting from the evaluation of
- * the rhs expression to the memory locations denoted by the lhs expression.
- */
-template <typename LhsXprType, typename RhsXprType>
-class TensorAssignOp : public TensorBase<TensorAssignOp<LhsXprType, RhsXprType> > {
- public:
+
+
+template<typename LhsXprType, typename RhsXprType>
+class TensorAssignOp : public TensorBase<TensorAssignOp<LhsXprType, RhsXprType> >
+{
+  public:
   typedef typename Eigen::internal::traits<TensorAssignOp>::Scalar Scalar;
   typedef typename Eigen::NumTraits<Scalar>::Real RealScalar;
   typedef typename LhsXprType::CoeffReturnType CoeffReturnType;

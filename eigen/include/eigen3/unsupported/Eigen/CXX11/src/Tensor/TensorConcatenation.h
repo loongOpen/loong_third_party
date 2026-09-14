@@ -12,6 +12,13 @@
 
 namespace Eigen {
 
+/** \class TensorConcatenationOp
+  * \ingroup CXX11_Tensor_Module
+  *
+  * \brief Tensor concatenation class.
+  *
+  *
+  */
 namespace internal {
 template<typename Axis, typename LhsXprType, typename RhsXprType>
 struct traits<TensorConcatenationOp<Axis, LhsXprType, RhsXprType> >
@@ -48,13 +55,10 @@ struct nested<TensorConcatenationOp<Axis, LhsXprType, RhsXprType>, 1, typename e
 
 }  // end namespace internal
 
-/**
- * \ingroup CXX11_Tensor_Module
- *
- * \brief Tensor concatenation class.
- */
-template <typename Axis, typename LhsXprType, typename RhsXprType>
-class TensorConcatenationOp : public TensorBase<TensorConcatenationOp<Axis, LhsXprType, RhsXprType>, WriteAccessors> {
+
+template<typename Axis, typename LhsXprType, typename RhsXprType>
+class TensorConcatenationOp : public TensorBase<TensorConcatenationOp<Axis, LhsXprType, RhsXprType>, WriteAccessors>
+{
   public:
     typedef TensorBase<TensorConcatenationOp<Axis, LhsXprType, RhsXprType>, WriteAccessors> Base;
     typedef typename internal::traits<TensorConcatenationOp>::Scalar Scalar;

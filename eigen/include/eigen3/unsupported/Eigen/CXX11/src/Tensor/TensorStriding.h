@@ -12,6 +12,13 @@
 
 namespace Eigen {
 
+/** \class TensorStriding
+  * \ingroup CXX11_Tensor_Module
+  *
+  * \brief Tensor striding class.
+  *
+  *
+  */
 namespace internal {
 template<typename Strides, typename XprType>
 struct traits<TensorStridingOp<Strides, XprType> > : public traits<XprType>
@@ -41,13 +48,11 @@ struct nested<TensorStridingOp<Strides, XprType>, 1, typename eval<TensorStridin
 
 }  // end namespace internal
 
-/**
- * \ingroup CXX11_Tensor_Module
- *
- * \brief Tensor striding class.
- */
-template <typename Strides, typename XprType>
-class TensorStridingOp : public TensorBase<TensorStridingOp<Strides, XprType> > {
+
+
+template<typename Strides, typename XprType>
+class TensorStridingOp : public TensorBase<TensorStridingOp<Strides, XprType> >
+{
   public:
     typedef TensorBase<TensorStridingOp<Strides, XprType> > Base;
     typedef typename Eigen::internal::traits<TensorStridingOp>::Scalar Scalar;

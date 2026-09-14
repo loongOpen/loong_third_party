@@ -12,6 +12,13 @@
 
 namespace Eigen {
 
+/** \class TensorReshaping
+  * \ingroup CXX11_Tensor_Module
+  *
+  * \brief Tensor reshaping class.
+  *
+  *
+  */
 namespace internal {
 template<typename NewDimensions, typename XprType>
 struct traits<TensorReshapingOp<NewDimensions, XprType> > : public traits<XprType>
@@ -41,14 +48,12 @@ struct nested<TensorReshapingOp<NewDimensions, XprType>, 1, typename eval<Tensor
 
 }  // end namespace internal
 
-/**
- * \ingroup CXX11_Tensor_Module
- *
- * \brief Tensor reshaping class.
- */
-template <typename NewDimensions, typename XprType>
-class TensorReshapingOp : public TensorBase<TensorReshapingOp<NewDimensions, XprType>, WriteAccessors> {
- public:
+
+
+template<typename NewDimensions, typename XprType>
+class TensorReshapingOp : public TensorBase<TensorReshapingOp<NewDimensions, XprType>, WriteAccessors>
+{
+  public:
   typedef TensorBase<TensorReshapingOp<NewDimensions, XprType>, WriteAccessors> Base;
   typedef typename Eigen::internal::traits<TensorReshapingOp>::Scalar Scalar;
   typedef typename internal::remove_const<typename XprType::CoeffReturnType>::type CoeffReturnType;
@@ -364,9 +369,8 @@ class TensorSlicingOp : public TensorBase<TensorSlicingOp<StartIndices, Sizes, X
 };
 
 
-namespace internal {
-
 // Fixme: figure out the exact threshold
+namespace {
 template <typename Index, typename Device, bool BlockAccess> struct MemcpyTriggerForSlicing {
   EIGEN_DEVICE_FUNC MemcpyTriggerForSlicing(const Device& device) : threshold_(2 * device.numThreads()) { }
   EIGEN_DEVICE_FUNC bool operator ()(Index total, Index contiguous) const {
@@ -396,7 +400,7 @@ template <typename Index, bool BlockAccess> struct MemcpyTriggerForSlicing<Index
 };
 #endif
 
-}  // namespace internal
+}
 
 // Eval as rvalue
 template<typename StartIndices, typename Sizes, typename ArgType, typename Device>
@@ -507,7 +511,7 @@ struct TensorEvaluator<const TensorSlicingOp<StartIndices, Sizes, ArgType>, Devi
         }
       }
       // Use memcpy if it's going to be faster than using the regular evaluation.
-      const internal::MemcpyTriggerForSlicing<Index, Device, BlockAccess> trigger(m_device);
+      const MemcpyTriggerForSlicing<Index, Device, BlockAccess> trigger(m_device);
       if (trigger(internal::array_prod(dimensions()), contiguous_values)) {
         EvaluatorPointerType src = (EvaluatorPointerType)m_impl.data();
         for (Index i = 0; i < internal::array_prod(dimensions()); i += contiguous_values) {

@@ -20,18 +20,19 @@
 namespace Eigen {
 
 /** \internal
- *
- * \ingroup CXX11_Tensor_Module
- *
- * \brief Stores the data of a tensor
- *
- * This class stores the data of fixed-size, dynamic-size or mixed tensors
- * in a way as compact as possible.
- *
- * \sa Tensor
- */
-template <typename T, typename Dimensions, int Options>
-class TensorStorage;
+  *
+  * \class TensorStorage
+  * \ingroup CXX11_Tensor_Module
+  *
+  * \brief Stores the data of a tensor
+  *
+  * This class stores the data of fixed-size, dynamic-size or mixed tensors
+  * in a way as compact as possible.
+  *
+  * \sa Tensor
+  */
+template<typename T, typename Dimensions, int Options> class TensorStorage;
+
 
 // Pure fixed-size storage
 template<typename T, typename FixedDimensions, int Options_>
@@ -54,13 +55,16 @@ class TensorStorage
   EIGEN_DEVICE_FUNC
   EIGEN_STRONG_INLINE const T *data() const { return m_data; }
 
-  EIGEN_DEVICE_FUNC
-  EIGEN_STRONG_INLINE const FixedDimensions dimensions() const { return FixedDimensions(); }
+  static EIGEN_DEVICE_FUNC
+  EIGEN_STRONG_INLINE const FixedDimensions& dimensions()
+  {
+    static const FixedDimensions* singleton_dimensions = new FixedDimensions();
+    return *singleton_dimensions;
+  }
 
   EIGEN_DEVICE_FUNC
   EIGEN_STRONG_INLINE DenseIndex size() const { return Size; }
 };
-
 
 // pure dynamic
 template<typename T, typename IndexType, int NumIndices_, int Options_>

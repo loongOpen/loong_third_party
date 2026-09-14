@@ -680,7 +680,6 @@ JacobiSVD<MatrixType, QRPreconditioner>::compute(const MatrixType& matrix, unsig
   if (!(numext::isfinite)(scale)) {
     m_isInitialized = true;
     m_info = InvalidInput;
-    m_nonzeroSingularValues = 0;
     return *this;
   }
   if(scale==RealScalar(0)) scale = RealScalar(1);

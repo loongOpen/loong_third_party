@@ -324,9 +324,9 @@ template<typename Derived> class DenseBase
     typedef Transpose<Derived> TransposeReturnType;
     EIGEN_DEVICE_FUNC
     TransposeReturnType transpose();
-    typedef Transpose<const Derived> ConstTransposeReturnType;
+    typedef typename internal::add_const<Transpose<const Derived> >::type ConstTransposeReturnType;
     EIGEN_DEVICE_FUNC
-    const ConstTransposeReturnType transpose() const;
+    ConstTransposeReturnType transpose() const;
     EIGEN_DEVICE_FUNC
     void transposeInPlace();
 
