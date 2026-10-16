@@ -1,0 +1,51 @@
+diff -aruN a/src/modbus-private.h b/src/modbus-private.h
+--- a/src/modbus-private.h	2025-03-24 18:15:38.093669547 +0800
++++ b/src/modbus-private.h	2026-10-14 16:01:42.258357063 +0800
+@@ -112,9 +112,7 @@
+ void _error_print(modbus_t *ctx, const char *context);
+ int _modbus_receive_msg(modbus_t *ctx, uint8_t *msg, msg_type_t msg_type);
+ 
+-#ifndef HAVE_STRLCPY
+-size_t strlcpy(char *dest, const char *src, size_t dest_size);
+-#endif
++size_t strlcpy_(char *dest, const char *src, size_t dest_size);
+ 
+ MODBUS_END_DECLS
+ 
+diff -aruN a/src/modbus-tcp.c b/src/modbus-tcp.c
+--- a/src/modbus-tcp.c	2026-07-02 18:12:47.807023416 +0800
++++ b/src/modbus-tcp.c	2026-10-14 16:04:22.886345102 +0800
+@@ -1020,7 +1020,7 @@
+ 
+     if (ip != NULL) {
+         dest_size = sizeof(char) * 16;
+-        ret_size = strlcpy(ctx_tcp->ip, ip, dest_size);
++        ret_size = strlcpy_(ctx_tcp->ip, ip, dest_size);
+         if (ret_size == 0) {
+             fprintf(stderr, "The IP string is empty\n");
+             modbus_free(ctx);
+diff -aruN a/src/modbus.c b/src/modbus.c
+--- a/src/modbus.c	2026-07-02 18:12:47.808023402 +0800
++++ b/src/modbus.c	2026-10-14 16:02:26.618374099 +0800
+@@ -2328,7 +2328,6 @@
+     free(mb_mapping);
+ }
+ 
+-#ifndef HAVE_STRLCPY
+ /*
+  * Function strlcpy was originally developed by
+  * Todd C. Miller <Todd.Miller@courtesan.com> to simplify writing secure code.
+@@ -2341,7 +2340,7 @@
+  * will be copied.  Always NUL terminates (unless dest_size == 0).  Returns
+  * strlen(src); if retval >= dest_size, truncation occurred.
+  */
+-size_t strlcpy(char *dest, const char *src, size_t dest_size)
++size_t strlcpy_(char *dest, const char *src, size_t dest_size)
+ {
+     register char *d = dest;
+     register const char *s = src;
+@@ -2365,4 +2364,3 @@
+ 
+     return (s - src - 1); /* count does not include NUL */
+ }
+-#endif

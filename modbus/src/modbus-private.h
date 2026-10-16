@@ -42,8 +42,7 @@ MODBUS_BEGIN_DECLS
 #define _BYTE_TIMEOUT     500000
 
 typedef enum {
-    _MODBUS_BACKEND_TYPE_IPC = 0,
-    _MODBUS_BACKEND_TYPE_RTU,
+    _MODBUS_BACKEND_TYPE_RTU = 0,
     _MODBUS_BACKEND_TYPE_TCP
 } modbus_backend_type_t;
 
@@ -98,7 +97,7 @@ struct _modbus {
     /* Slave address */
     int slave;
     /* Socket or file descriptor */
-    int r, s;
+    int s;
     int debug;
     int error_recovery;
     int quirks;

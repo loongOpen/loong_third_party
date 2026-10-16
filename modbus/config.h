@@ -97,6 +97,9 @@
 /* Define to 1 if you have the 'strlcpy' function. */
 /* #undef HAVE_STRLCPY */
 
+/* Define to 1 if the system has the type 'struct termios2'. */
+#define HAVE_STRUCT_TERMIOS2 1
+
 /* Define to 1 if you have the <sys/ioctl.h> header file. */
 #define HAVE_SYS_IOCTL_H 1
 
@@ -143,7 +146,7 @@
 #define PACKAGE_NAME "libmodbus"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "libmodbus 3.1.12"
+#define PACKAGE_STRING "libmodbus 3.2.0"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "libmodbus"
@@ -152,7 +155,7 @@
 #define PACKAGE_URL "http://libmodbus.org/"
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "3.1.12"
+#define PACKAGE_VERSION "3.2.0"
 
 /* Define to 1 if all of the C89 standard headers exist (not just the ones
    required in a freestanding environment). This macro is provided for
@@ -162,6 +165,10 @@
 /* Enable extensions on AIX, Interix, z/OS.  */
 #ifndef _ALL_SOURCE
 # define _ALL_SOURCE 1
+#endif
+/* Enable extensions on Cosmopolitan Libc. */
+#ifndef _COSMO_SOURCE
+# define _COSMO_SOURCE 1
 #endif
 /* Enable general extensions on macOS.  */
 #ifndef _DARWIN_C_SOURCE
@@ -252,7 +259,7 @@
 
 
 /* Version number of package */
-#define VERSION "3.1.12"
+#define VERSION "3.2.0"
 
 /* _ */
 #define WINVER 0x0501
