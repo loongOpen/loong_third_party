@@ -2,9 +2,8 @@
 *.so
 *.a
 *.bak
+!bootstrap*.o
 !libethercat-cpp.so
-!bootstrap.o
-!bootstrap-pic.o
 !libcopperplate.so
 !libcopperplate.a
 !libmodechk.so
