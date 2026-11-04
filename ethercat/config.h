@@ -8,7 +8,7 @@
 /* #undef EC_DEBUG_RING */
 
 /* EoE support enabled */
-#define EC_EOE 1
+/* #undef EC_EOE */
 
 /* Use CPU timestamp counter */
 /* #undef EC_HAVE_CYCLES */
@@ -25,6 +25,9 @@
 /* RTDM interface enabled */
 /* #undef EC_RTDM */
 
+/* Use Xenomai3 RTDM flavour */
+/* #undef EC_RTDM_XENOMAI_V3 */
+
 /* Output to syslog in RT context */
 #define EC_RT_SYSLOG 1
 
@@ -32,7 +35,7 @@
 #define EC_SII_ASSIGN 1
 
 /* Use hrtimer for scheduling */
-/* #undef EC_USE_HRTIMER */
+#define EC_USE_HRTIMER 1
 
 /* Define to 1 if you have the <dlfcn.h> header file. */
 #define HAVE_DLFCN_H 1
@@ -77,7 +80,7 @@
 #define PACKAGE_NAME "ethercat"
 
 /* Define to the full name and version of this package. */
-#define PACKAGE_STRING "ethercat 1.5.3"
+#define PACKAGE_STRING "ethercat 1.6.9"
 
 /* Define to the one symbol short name of this package. */
 #define PACKAGE_TARNAME "ethercat"
@@ -86,10 +89,10 @@
 #define PACKAGE_URL ""
 
 /* Define to the version of this package. */
-#define PACKAGE_VERSION "1.5.3"
+#define PACKAGE_VERSION "1.6.9"
 
 /* Define to 1 if you have the ANSI C header files. */
 #define STDC_HEADERS 1
 
 /* Version number of package */
-#define VERSION "1.5.3"
+#define VERSION "1.6.9"

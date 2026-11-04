@@ -1,4 +1,4 @@
-/******************************************************************************
+/*****************************************************************************
  *
  *  Copyright (C) 2006-2023  Florian Pose, Ingenieurgemeinschaft IgH
  *
@@ -17,13 +17,7 @@
  *  with the IgH EtherCAT Master; if not, write to the Free Software
  *  Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *
- *  ---
- *
- *  The license mentioned above concerns the source code only. Using the
- *  EtherCAT technology and brand is only permitted in compliance with the
- *  industrial property and similar rights of Beckhoff Automation GmbH.
- *
- *****************************************************************************/
+ ****************************************************************************/
 
 // This file only contains the doxygen mainpage.
 
@@ -31,7 +25,7 @@
  * Doxygen mainpage only.
  */
 
-/*****************************************************************************/
+/****************************************************************************/
 
 /**
    \mainpage
@@ -45,6 +39,9 @@
 
    A list of all native network card drivers can be found
    <a href="devicedrivers.html">here</a>.
+
+   A <a href="libfakeethercat.html">second userspace library</a> can be used for a dry-run mode
+   or simulating Process Data.
 
    For information how to build and install, see the INSTALL file in the source
    root.
@@ -79,12 +76,7 @@
    with the IgH EtherCAT Master; if not, write to the Free Software
    Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
-   ---
-
-   The license mentioned above concerns the source code only. Using the
-   EtherCAT technology and brand is only permitted in compliance with the
-   industrial property and similar rights of Beckhoff Automation GmbH.
    \endverbatim
 */
 
-/*****************************************************************************/
+/****************************************************************************/
